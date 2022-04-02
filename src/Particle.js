@@ -1,28 +1,31 @@
 import React from 'react'
+import config from './config.json'
 
 const MAXHEIGHT = window.innerHeight
 const MAXWIDTH = window.innerWidth
-const MAXSIZE = 10
+const MINSIZE = config.minParticleSize
+const MAXSIZE = config.maxParticleSize
+const GLOBALVEL = config.globalVelocity
+const OUTBOUND = MAXSIZE * 1.5
+const FPS = config.FPS
 
 class Particle extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            size: rand(0, MAXSIZE),
+            size: rand(MINSIZE, MAXSIZE),
             color: "#" + randint(0,16**6).toString(16),
             blur: rand(0,10),
             x: rand(0, MAXWIDTH),
             y: rand(0, MAXHEIGHT),
-            dir: {
-                x: rand(-10,10),
-                y: rand(-10,10)
-            },
-            vel: rand(0.5,2),
+            angle: rand(0, 2*Math.PI),
+            baseVel: rand(0.5,2),
+            vel: rand(0.5,2)
         }
     }
 
     componentDidMount() {
-        setInterval(this.movement, 10);
+        setInterval(this.movement, 1000/FPS);
     }
 
     render() {
@@ -41,61 +44,46 @@ class Particle extends React.Component {
         );
     }
 
-    movement = () => {        
-        // Random change of direction
-        if (Math.random() < 0.01) {
-            this.setState(prevState => ({
-                dir: {                   // object that we want to update
-                    ...prevState.dir,    // keep all other key-value pairs
-                    x: rand(-10,10)       // update the value of specific key
-                }
+    // Movement of a particle
+    movement = () => {   
+        if (Math.random() < 0.1) {
+            this.setState(prev => ({
+                angle: prev.angle + rand(-0.2,0.2),
             }));
-        }
-        if (Math.random() < 0.01) {
-            this.setState(prevState => ({
-                dir: {                   // object that we want to update
-                    ...prevState.dir,    // keep all other key-value pairs
-                    y: rand(-10,10)       // update the value of specific key
-                }
-            }));
+        }     
+        if (Math.random() < 0.015) {
+            this.setState({
+                angle: rand(0, 2*Math.PI),
+                vel: rand(0.5,2)
+            });
         }
 
         // Forced change of direction
-        if (this.state.x < -50) {
-            this.setState(prevState => ({
-                dir: {                   // object that we want to update
-                    ...prevState.dir,    // keep all other key-value pairs
-                    x: rand(0,10)       // update the value of specific key
-                }
-            }));
+        if (this.state.x < -OUTBOUND) {
+            this.setState({
+                x: MAXWIDTH + OUTBOUND
+            });
         }
-        if (this.state.x > MAXWIDTH + 50) {
-            this.setState(prevState => ({
-                dir: {                   // object that we want to update
-                    ...prevState.dir,    // keep all other key-value pairs
-                    x: rand(-10,0)       // update the value of specific key
-                }
-            }));
+        if (this.state.x > MAXWIDTH + OUTBOUND) {
+            this.setState({
+                x: -OUTBOUND
+            });
         }
-        if (this.state.y < -50) {
-            this.setState(prevState => ({
-                dir: {                   // object that we want to update
-                    ...prevState.dir,    // keep all other key-value pairs
-                    y: rand(0,10)       // update the value of specific key
-                }
-            }));
+        if (this.state.y < -OUTBOUND) {
+            this.setState({
+                y: MAXHEIGHT + OUTBOUND
+            });
         }
-        if (this.state.y > MAXHEIGHT + 50) {
-            this.setState(prevState => ({
-                dir: {                   // object that we want to update
-                    ...prevState.dir,    // keep all other key-value pairs
-                    y: rand(-10,0)       // update the value of specific key
-                }
-            }));
+        if (this.state.y > MAXHEIGHT + OUTBOUND) {
+            this.setState({
+                y: -OUTBOUND
+            });
         }
 
-        this.setState({x: this.state.x + Math.random() * 0.3 * this.state.vel * this.state.dir.x});
-        this.setState({y: this.state.y + Math.random() * 0.3 * this.state.vel * this.state.dir.y});
+        this.setState(prev => ({
+            x: prev.x + prev.baseVel * prev.vel * GLOBALVEL * Math.cos(prev.angle),
+            y: prev.y + prev.baseVel * prev.vel * GLOBALVEL * Math.sin(prev.angle)
+        }));     
     }
 }
 
@@ -104,7 +92,6 @@ export default Particle;
 function rand(min, max) {
     return Math.random()*(max-min) + min
 }
-
 function randint(min, max) {
     return Math.floor(Math.random()*(max-min+1)) + min;
 }
