@@ -1,6 +1,7 @@
 # Before starting
-Run:
 ### `npm install`
+
+Installs all the React node modules
 
 # Getting Started with Create React App
 
