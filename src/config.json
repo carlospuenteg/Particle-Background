@@ -3,6 +3,6 @@
     "maxParticleSize": 15,
     "globalVelocity": 0.3,
     "FPS": 60,
-    "minBlur": 2,
+    "minBlur": 0,
     "maxBlur": 10
 }
