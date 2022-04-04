@@ -23,6 +23,7 @@ class Particle extends React.Component {
             angle: rand(0, 2*Math.PI),
             baseVel: rand(0.5,2),
             vel: rand(0.5,2),
+            isBlurry: false,
             sizeChng: 1,
             sizeChngCount: 0,
         }
@@ -50,23 +51,39 @@ class Particle extends React.Component {
 
     // Movement of a particle
     movement = () => {   
+        // Blur oscillation
+        if (!this.state.isBlurry && Math.random() < 0.001) {
+            this.setState(prev => ({
+                isBlurry: true,
+                blur: prev.blur + 1.5,
+            }));
+        }
+        if (this.state.isBlurry && Math.random() < 0.01) {
+            this.setState(prev => ({
+                isBlurry: false,
+                blur: prev.blur - 1.5,
+            }));
+        }
+
         // Size oscillation
-        console.log(this.state.x)
-        if (this.state.sizeChngCount >= 75) {
+        if (this.state.sizeChngCount >= 50) {
             this.setState({ sizeChng: -1 });
         } else if (this.state.sizeChngCount <= 0) {
             this.setState({ sizeChng: 1 });
         }
         this.setState(prev => ({
-            size: prev.size + 0.05 * prev.sizeChng * rand(0,2),
+            size: prev.size + 0.04 * prev.sizeChng * rand(0,2),
             sizeChngCount: prev.sizeChngCount + prev.sizeChng
         }));
 
+        // Slight change of angle
         if (Math.random() < 0.1) {
             this.setState(prev => ({
                 angle: prev.angle + rand(-0.2,0.2),
             }));
         }     
+
+        // Change of angle and velocity
         if (Math.random() < 0.015) {
             this.setState({
                 angle: rand(0, 2*Math.PI),
