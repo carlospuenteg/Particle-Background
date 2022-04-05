@@ -1,3 +1,13 @@
+## Description
+
+Background with Particles for your React App
+
+## Install Modules
+
+Before you start, install the React modules with:
+
+### `npm install`
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
